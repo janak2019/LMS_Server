@@ -4,7 +4,7 @@ import cloudinary from './utils/cloudinary.js'
 
 app.get("/",(req,res)=>{
     res.status(200).json({
-        message:"Hello From LMS"
+        message:"LMS Server Started"
     })
 })
 
