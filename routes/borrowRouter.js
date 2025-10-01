@@ -14,8 +14,7 @@ router.post(
 // Route to get borrowed books for admin
 router.get(
     "/borrowed-books-by-users",
-     isAuthenticated,
-     isAuthorized("Admin"),
+     isAuthenticated,     
      getBorrowedBooksForAdmin
     );
 // Route to borrow a book by user
