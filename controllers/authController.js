@@ -205,8 +205,8 @@ export const resetPassword = catchAsyncErrors(async(req, res, next)=>{
 export const updatePassword = catchAsyncErrors(async(req, res, next)=>{
     
     const user = await User.findById(req.user._id).select("+password");  
-    const {oldPassword, newPassword, confirmPassword} = req.body;
-    if(!oldPassword || !newPassword || !confirmPassword){
+    const {currentPassword, newPassword, confirmPassword} = req.body;
+    if(!currentPassword || !newPassword || !confirmPassword){
         return next(new ErrorHandler("Please provide all fields", 400))
     }
     if(!user){
