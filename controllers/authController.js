@@ -205,24 +205,41 @@ export const resetPassword = catchAsyncErrors(async(req, res, next)=>{
 export const updatePassword = catchAsyncErrors(async(req, res, next)=>{
     
     const user = await User.findById(req.user._id).select("+password");  
-    const {currentPassword, newPassword, confirmPassword} = req.body;
-    if(!currentPassword || !newPassword || !confirmPassword){
-        return next(new ErrorHandler("Please provide all fields", 400))
-    }
+    
     if(!user){
         return next(new ErrorHandler("User not found", 404))
-    }   
-    const isPasswordMatched = await bcrypt.compare(currentPassword, user.password);
+    } 
+    const {currentPassword, newPassword, confirmNewPassword} = req.body;
+    const validateFieldsError = validateFields({
+        currentPassword,
+        newPassword,
+        confirmNewPassword,
+    });
+    if(validateFieldsError){
+        return next(new ErrorHandler(validateFieldsError,400));
+
+    }
+    const isPasswordMatched = await bcrypt.compare(
+        currentPassword,
+        user.password,
+    )     
+    
     if(!isPasswordMatched){
         return next(new ErrorHandler("Old password is incorrect", 400))
     }
-    if(req.body.newPassword !== req.body.confirmPassword){
-        return next(new ErrorHandler("Password does not match", 400))
-    }
-    if(req.body.newPassword.length < 6 || req.body.newPassword.length > 16 || req.body.confirmPassword.length < 6 || req.body.confirmPassword.length > 16){
-    return next(new ErrorHandler("Password must be between 8 and 16 characters", 400))
-    }   
-    user.password = await bcrypt.hash(req.body.newPassword, 10)
+    const passwordValidationError = validateField(
+        newPassword,
+        confirmNewPassword
+    );
+    
+    if(passwordValidationError){
+        return next(new ErrorHandler(passwordValidationError,400));
+    } 
+    const hashedPassword = await bcrypt.hash(newPassword,10)
+    user.password = hashedPassword;
     await user.save();
-    sendToken(user, 200, "Password updated successfully", res)
-})
+    res.status(200).json({
+        success : true,
+        message: "Password updated.",
+    });
+});
