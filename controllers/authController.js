@@ -212,7 +212,7 @@ export const updatePassword = catchAsyncErrors(async(req, res, next)=>{
     if(!user){
         return next(new ErrorHandler("User not found", 404))
     }   
-    const isPasswordMatched = await bcrypt.compare(oldPassword, user.password);
+    const isPasswordMatched = await bcrypt.compare(currentPassword, user.password);
     if(!isPasswordMatched){
         return next(new ErrorHandler("Old password is incorrect", 400))
     }
