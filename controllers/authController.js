@@ -202,44 +202,41 @@ export const resetPassword = catchAsyncErrors(async(req, res, next)=>{
     sendToken(user, 200, "Password changed successfully", res)
 }) 
 // Update Password
-export const updatePassword = catchAsyncErrors(async(req, res, next)=>{
-    
-    const user = await User.findById(req.user._id).select("+password");  
-    
-    if(!user){
-        return next(new ErrorHandler("User not found", 404))
-    } 
-    const {currentPassword, newPassword, confirmNewPassword} = req.body;
-    const validateFieldsError = validateFields({
-        currentPassword,
-        newPassword,
-        confirmNewPassword,
-    });
-    if(validateFieldsError){
-        return next(new ErrorHandler(validateFieldsError,400));
+export const updatePassword = catchAsyncErrors(async (req, res, next) => {
+  const user = await User.findById(req.user._id).select("+password");
 
-    }
-    const isPasswordMatched = await bcrypt.compare(
-        currentPassword,
-        user.password,
-    )     
-    
-    if(!isPasswordMatched){
-        return next(new ErrorHandler("Old password is incorrect", 400))
-    }
-    const passwordValidationError = validateField(
-        newPassword,
-        confirmNewPassword
-    );
-    
-    if(passwordValidationError){
-        return next(new ErrorHandler(passwordValidationError,400));
-    } 
-    const hashedPassword = await bcrypt.hash(newPassword,10)
-    user.password = hashedPassword;
-    await user.save();
-    res.status(200).json({
-        success : true,
-        message: "Password updated.",
-    });
+  if (!user) {
+    return next(new ErrorHandler("User not found", 404));
+  }
+
+  const { currentPassword, newPassword, confirmNewPassword } = req.body;
+
+  // Check if all fields are provided
+  if (!currentPassword || !newPassword || !confirmNewPassword) {
+    return next(new ErrorHandler("Please provide all required fields", 400));
+  }
+
+  // Compare old password
+  const isPasswordMatched = await bcrypt.compare(currentPassword, user.password);
+  if (!isPasswordMatched) {
+    return next(new ErrorHandler("Current password is incorrect", 400));
+  }
+
+  // Confirm new password
+  if (newPassword !== confirmNewPassword) {
+    return next(new ErrorHandler("New passwords do not match", 400));
+  }
+
+  // If you don’t have a pre-save hook in your User model:
+  user.password = await bcrypt.hash(newPassword, 10);
+
+  // If you DO have a pre-save hook for hashing password:
+  // user.password = newPassword;
+
+  await user.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Password updated successfully",
+  });
 });
