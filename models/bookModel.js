@@ -28,7 +28,7 @@ const bookSchema = new mongoose.Schema({
         type: Number,        
         min: 0
     },
-    coverImage: {
+    bookImage: {
         public_id: String,
         url: String
     },

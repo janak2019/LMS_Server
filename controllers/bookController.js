@@ -5,24 +5,41 @@ import ErrorHandler from "../middlewares/errorMiddlewares.js";
 
 
 // Add a new book
+// Make sure multer middleware is applied in your route to handle 'bookImage'
 export const addBook = catchAsyncErrors(async (req, res, next) => {
-    const { title, author, description, price, quantity} = req.body;
-    if (!title || !author || !description || !price|| !quantity ) {
-        return next(new ErrorHandler("Please provide all fields", 400));
+  const { title, author, description, price, quantity, availability } = req.body;
+
+  if (!title || !author || !description || !price || !quantity) {
+    return next(new ErrorHandler("Please provide all required fields", 400));
+  }
+
+  try {
+    const newBook = new Book({
+      title,
+      author,
+      description,
+      price,
+      quantity,
+      availability: availability !== undefined ? availability : true,
+    });
+
+    // If file uploaded, save image URL
+    if (req.file) {
+      newBook.bookImage = { url: `/uploads/${req.file.filename}` };
     }
-    try {
-        const book = new Book({ title, author, description, price,quantity });
-        await book.save();
-        res.status(201).json({
-            success: true,
-            message: "Book added successfully",
-            book
-        });
-    } catch (error) {
-        return next(new ErrorHandler("Internal server error", 500));
-    }
-}
-);
+
+    await newBook.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Book added successfully",
+      book: newBook,
+    });
+  } catch (error) {
+    console.error("Add Book Error:", error);
+    return next(new ErrorHandler("Internal server error", 500));
+  }
+});
 
 // Get all books
 export const getAllBooks = catchAsyncErrors(async (req, res, next) => {
