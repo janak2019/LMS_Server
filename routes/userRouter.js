@@ -1,5 +1,5 @@
 import express from 'express'
-import {getAllUsers,registerNewAdmin} from "../controllers/userControllers.js"
+import {getAllUsers,registerNewAdmin, registerNewUser} from "../controllers/userControllers.js"
 import {isAuthenticated,isAuthorized} from "../middlewares/authMiddleware.js"
 import { upload } from '../controllers/multer.Controller.js'
 
