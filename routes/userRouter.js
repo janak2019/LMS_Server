@@ -16,6 +16,9 @@ router.get("/all",isAuthenticated,isAuthorized("Admin"),getAllUsers)
 router.post("/add/new-admin",
     isAuthenticated,
     isAuthorized("Admin"),upload.single('avatar'), registerNewAdmin);
+router.post("/add/new-user",
+    isAuthenticated,
+    isAuthorized("Admin"),upload.single('avatar'), registerNewUser);
 
 export default router
 

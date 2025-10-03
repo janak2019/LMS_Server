@@ -147,6 +147,47 @@ export const registerNewAdmin = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler("Something went wrong. Please try again.", 500));
   }
 });
+export const registerNewUser = catchAsyncErrors(async (req, res, next) => {
+  try {
+    const { email, name, password, role } = req.body;
 
+    // 1. Validate required fields
+    if (!email?.trim() || !name?.trim() || !password?.trim() || !role?.trim()) {
+      return next(new ErrorHandler("Name, email, password and role are required.", 400));
+    }
+
+    // 2. Check if user already exists
+    const existingUser = await User.findOne({ email: email.toLowerCase() });
+    if (existingUser) {
+      return next(new ErrorHandler("User with this email already exists.", 400));
+    }
+
+    // 3. Create new user
+    const newUser = new User({
+      name,
+      email: email.toLowerCase(),
+      password,
+      role, // save role as provided from frontend
+      accountVerified: true, // set to true if you want verified by default
+    });
+
+    // 4. Save avatar if file uploaded
+    if (req.file) {
+      newUser.avatar = { url: `/uploads/${req.file.filename}` };
+    }
+
+    // 5. Save user to DB
+    await newUser.save();
+
+    res.status(201).json({
+      success: true,
+      message: `User registered successfully as ${role}`,
+      user: newUser,
+    });
+  } catch (error) {
+    console.error("Register User Error:", error);
+    return next(new ErrorHandler("Something went wrong. Please try again.", 500));
+  }
+});
 
 
