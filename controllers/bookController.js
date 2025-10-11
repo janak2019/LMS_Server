@@ -4,41 +4,37 @@ import { User } from "../models/userModel.js";
 import ErrorHandler from "../middlewares/errorMiddlewares.js";  
 
 
+
 // Add a new book
 // Make sure multer middleware is applied in your route to handle 'bookImage'
 export const addBook = catchAsyncErrors(async (req, res, next) => {
-  const { title, author, description, price, quantity, availability } = req.body;
+  const { title, author, description, quantity, price, availability } = req.body;
 
-  if (!title || !author || !description || !price || !quantity) {
-    return next(new ErrorHandler("Please provide all required fields", 400));
+  // Cloudinary URL
+  const bookImageUrl = req.file?.path || req.file?.secure_url || null;
+
+  if (!bookImageUrl) {
+    return res.status(400).json({
+      success: false,
+      message: "Book image upload failed.",
+    });
   }
 
-  try {
-    const newBook = new Book({
-      title,
-      author,
-      description,
-      price,
-      quantity,
-      availability: availability !== undefined ? availability : true,
-    });
+  const newBook = await Book.create({
+    title,
+    author,
+    description,
+    quantity,
+    price,
+    availability: availability ?? true, // default true if not provided
+    bookImage: bookImageUrl,
+  });
 
-    // If file uploaded, save image URL
-    if (req.file) {
-      newBook.bookImage = { url: `/uploads/${req.file.filename}` };
-    }
-
-    await newBook.save();
-
-    res.status(201).json({
-      success: true,
-      message: "Book added successfully",
-      book: newBook,
-    });
-  } catch (error) {
-    console.error("Add Book Error:", error);
-    return next(new ErrorHandler("Internal server error", 500));
-  }
+  res.status(201).json({
+    success: true,
+    message: "Book added successfully",
+    book: newBook,
+  });
 });
 
 // Get all books

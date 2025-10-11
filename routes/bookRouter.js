@@ -1,13 +1,19 @@
 import { isAuthenticated, isAuthorized } from "../middlewares/authMiddleware.js";
 import { addBook, deleteBook, getAllBooks } from "../controllers/bookController.js";
 import express from "express";
-import { uploadBookImage } from "../middlewares/multer.js";
+import { uploadBookImage } from "../config/cloudinary.js";
 
 const router = express.Router();
 
 
 
-router.post("/admin/add",isAuthenticated, isAuthorized("Admin"),uploadBookImage.single("bookImage"), addBook);
+router.post(
+  "/admin/add",
+  isAuthenticated,
+  isAuthorized("Admin"),
+  uploadBookImage.single("bookImage"),
+  addBook
+);
 router.get("/all", getAllBooks);   
 router.delete("/delete/:id", isAuthenticated, isAuthorized("Admin"), deleteBook);
 

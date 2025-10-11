@@ -8,7 +8,7 @@ import authRouter from "./routes/authRouter.js";
 import bookRouter from "./routes/bookRouter.js";
 import borrowRouter from "./routes/borrowRouter.js";
 import userRouter from "./routes/userRouter.js";
-import fileUpload from "express-fileupload";
+
 import path from "path";
 
 export const app = express();
@@ -33,12 +33,7 @@ app.use("/api/v1/user",userRouter);
 connectDB()
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-app.use(
-  fileUpload({
-  useTempFiles: true,         // ✅ required
-  tempFileDir: "/tmp/",       // ✅ temporary folder
-  limits: { fileSize: 100*1024 }, // optional: 100KB max
-}));
+
 
 
 app.use(errorMiddleware)

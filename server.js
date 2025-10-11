@@ -1,6 +1,5 @@
 import {app} from "./app.js";
 
-import cloudinary from './utils/cloudinary.js'
 
 app.get("/",(req,res)=>{
     res.status(200).json({
