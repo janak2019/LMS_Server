@@ -29,6 +29,8 @@ const bookSchema = new mongoose.Schema({
         min: 0
     },
     bookImage: {
+        type: String,
+        allowNull: true,
         public_id: String,
         url: String
     },

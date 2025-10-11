@@ -9,7 +9,7 @@ import ErrorHandler from "../middlewares/errorMiddlewares.js";
 // Make sure multer middleware is applied in your route to handle 'bookImage'
 export const addBook = catchAsyncErrors(async (req, res, next) => {
   const { title, author, description, quantity, price, availability } = req.body;
-
+    
   // Cloudinary URL
    const bookImageUrl =
     req.file?.path ||
@@ -33,7 +33,7 @@ export const addBook = catchAsyncErrors(async (req, res, next) => {
     availability: availability ?? true, // default true if not provided
     bookImage: bookImageUrl,
   });
-  console.log(bookImageUrl)
+  
 
   res.status(201).json({
     success: true,
