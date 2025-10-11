@@ -11,7 +11,11 @@ export const addBook = catchAsyncErrors(async (req, res, next) => {
   const { title, author, description, quantity, price, availability } = req.body;
 
   // Cloudinary URL
-  const bookImageUrl = req.file?.path || req.file?.secure_url || null;
+   const bookImageUrl =
+    req.file?.path ||
+    req.file?.url ||
+    req.file?.secure_url ||
+    null;
 
   if (!bookImageUrl) {
     return res.status(400).json({
@@ -29,6 +33,7 @@ export const addBook = catchAsyncErrors(async (req, res, next) => {
     availability: availability ?? true, // default true if not provided
     bookImage: bookImageUrl,
   });
+  console.log(bookImageUrl)
 
   res.status(201).json({
     success: true,
